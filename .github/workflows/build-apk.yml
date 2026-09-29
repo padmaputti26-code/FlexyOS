@@ -12,56 +12,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Get project
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java 17
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # 3. Gradle 8.9
       - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      # 4. Android SDK environment
-      - name: Configure Android SDK
+      - name: Build APK
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          gradle assembleDebug --no-daemon --console=plain --stacktrace
 
-      # 5. Check project
-      - name: Check project
-        run: |
-          echo "Project files:"
-          ls -la
-          echo "Android modules:"
-          find . -maxdepth 2 -name "build.gradle" -o -name "build.gradle.kts"
-
-      # 6. Build APK
-      - name: Build Debug APK
-        run: |
-          gradle assembleDebug --console=plain --stacktrace
-
-      # 7. Find APK
-      - name: Find APK
-        if: success()
-        run: |
-          echo "APK files:"
-          find . -type f -name "*.apk" -print
-
-      # 8. Upload APK
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: FlexyOS-APK
-          path: |
-            **/build/outputs/apk/debug/*.apk
+          name: FlexyOS-C71-APK
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
