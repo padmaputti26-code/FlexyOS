@@ -1,12 +1,11 @@
-name: Build FlexyOS APK
+name: Build APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
-
-permissions:
-  contents: read
+    branches:
+      - main
+      - master
 
 jobs:
   build:
@@ -27,12 +26,19 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Configure Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls "$ANDROID_HOME/platforms" || true
+
       - name: Build Debug APK
-        run: gradle --no-daemon assembleDebug --stacktrace
+        run: |
+          gradle assembleDebug --stacktrace --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FlexyOS-C71-debug
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          name: FlexyOS-APK
+          path: |
+            **/build/outputs/apk/debug/*.apk
